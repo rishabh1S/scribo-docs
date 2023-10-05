@@ -12,7 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mongoose": "^7.5.4",
     "socket.io": "^4.7.2"
   },
   "devDependencies": {
