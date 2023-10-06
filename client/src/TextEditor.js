@@ -3,11 +3,35 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClipboard } from "@fortawesome/free-regular-svg-icons";
+import { Toaster, toast } from "sonner";
 
 const SAVE_INTERVAL_MS = 3000;
+const fontSizeArr = [
+  "12px",
+  "8px",
+  "9px",
+  "10px",
+  "14px",
+  "16px",
+  "20px",
+  "24px",
+  "32px",
+  "42px",
+  "54px",
+  "68px",
+  "84px",
+  "98px",
+];
+
+const Size = Quill.import("attributors/style/size");
+Size.whitelist = fontSizeArr;
+Quill.register(Size, true);
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, false] }],
   [{ font: [] }],
+  [{ size: fontSizeArr }],
   [{ list: "ordered" }, { list: "bullet" }],
   ["bold", "italic", "underline", "strike"],
   [{ color: [] }, { background: [] }],
@@ -22,6 +46,7 @@ export default function TextEditor() {
   const { id: documentId } = useParams();
   const [socket, setSocket] = useState();
   const [quill, setQuill] = useState();
+  const [documentName, setDocumentName] = useState();
 
   useEffect(() => {
     const s = io("http://localhost:3001");
@@ -38,6 +63,10 @@ export default function TextEditor() {
     socket.once("load-document", (document) => {
       quill.setContents(document);
       quill.enable();
+    });
+
+    socket.on("update-document-name", (newName) => {
+      setDocumentName(newName);
     });
 
     socket.emit("get-document", documentId);
@@ -82,6 +111,26 @@ export default function TextEditor() {
     };
   }, [socket, quill]);
 
+  const copyToClipboard = () => {
+    const currentURL = window.location.href;
+    navigator.clipboard
+      .writeText(currentURL)
+      .then(() => {
+        toast.success("URL copied to clipboard");
+      })
+      .catch((error) => {
+        toast.error("Error copying to clipboard:", error);
+      });
+  };
+
+  const handleDocumentNameChange = (event) => {
+    const newName = event.target.value;
+    setDocumentName(newName);
+
+    // Send only the new name to the server
+    socket.emit("update-document-name", newName);
+  };
+
   const wrapperRef = useCallback((wrapper) => {
     if (wrapper == null) return;
 
@@ -96,5 +145,29 @@ export default function TextEditor() {
     q.disable();
     setQuill(q);
   }, []);
-  return <div className="container" ref={wrapperRef}></div>;
+  return (
+    <div>
+      <Toaster richColors position="top-center" />
+      <div className="header">
+        <img src="/icon-top.png" alt="header-img" />
+        <div className="div-outer">
+          <input
+            className="text-input"
+            type="text"
+            value={documentName}
+            onChange={handleDocumentNameChange}
+          />
+        </div>
+        <button onClick={copyToClipboard} className="share-b">
+          Share
+          <FontAwesomeIcon
+            icon={faClipboard}
+            className="icon-s"
+            style={{ color: "#001d35" }}
+          />
+        </button>
+      </div>
+      <div className="container" ref={wrapperRef}></div>
+    </div>
+  );
 }
