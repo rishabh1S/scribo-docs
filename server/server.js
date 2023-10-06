@@ -3,7 +3,10 @@ import supabase from "./supabase.js";
 
 const io = new Server(3001, {
   cors: {
-    origin: "http://scribo-docs-delta.vercel.app",
+    origin: [
+      "http://scribo-docs-delta.vercel.app",
+      "https://scribo-docs.onrender.com",
+    ],
     methods: ["GET", "POST"],
   },
 });
