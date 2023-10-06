@@ -49,7 +49,7 @@ export default function TextEditor() {
   const [documentName, setDocumentName] = useState();
 
   useEffect(() => {
-    const s = io("http://localhost:3001");
+    const s = io("https://scribo-docs.onrender.com");
     setSocket(s);
 
     return () => {
