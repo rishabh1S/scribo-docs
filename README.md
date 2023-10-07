@@ -121,4 +121,4 @@ Contributions to ScriboDocs are welcome! If you have ideas for improvements or b
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](https://github.com/rishabh1S/scribo-docs/blob/main/LICENSE).
